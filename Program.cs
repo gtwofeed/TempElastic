@@ -24,7 +24,10 @@ namespace TempElastic
             };
 
             var connectionPool = new SniffingConnectionPool(uris);
-            var settings = new ConnectionSettings(connectionPool).CertificateFingerprint("fe330d491c1561c3b465470e1ca5a3fdfc377c724fd136daf1e0dcf125b463bc").BasicAuthentication("elastic", "vk_wYNO6tBp7*2l=XcY4").DefaultIndex("index");
+            var settings = new ConnectionSettings(connectionPool)
+                .CertificateFingerprint("fe330d491c1561c3b465470e1ca5a3fdfc377c724fd136daf1e0dcf125b463bc")
+                .BasicAuthentication("elastic", "vk_wYNO6tBp7*2l=XcY4")
+                .DefaultIndex("index");
 
             var client = new ElasticClient(settings);
 
@@ -63,7 +66,7 @@ namespace TempElastic
                 "За дверью бессмысленно все, особенно – возглас счастья",
                 "Только в уборную, и сразу же возвращайся"
             }; // набор строк
-            int chekIndex = 0;
+            Console.WriteLine("Индексируем: " + DateTime.Now);
             for (int i = 1; i <= brotski.Count; i++)
             {
                 var text = new Text()
@@ -71,19 +74,13 @@ namespace TempElastic
                     Id = i,
                     Mess = brotski[i - 1]
                 };
-                var indexResponse = client.IndexDocument<Text>(text);
-                if (!indexResponse.IsValid) chekIndex++;
+                var asyncIndexResponse = await client.IndexDocumentAsync<Text>(text);
             }
-            Console.WriteLine(chekIndex);
+            Console.WriteLine("Проиндексировали: " + DateTime.Now);
             Console.Write("ПОИСК: ");
             string query = Console.ReadLine();
-            //var searchResponse = client.Search<Text>(s => s
-            //.Index(index)
-            //.From(0)
-            //.Size(2)
-            //.Query(q => q
-            //    .Term(t => t.Mess, query)));
-            var searchResponse = client.Search<Text>(s => s
+            Console.WriteLine("старт поиска: " + DateTime.Now);
+            var searchResponse = await client.SearchAsync<Text>(s => s
             .From(0)
             .Size(10)
             .Query(q => q
@@ -93,6 +90,7 @@ namespace TempElastic
                     )
                 )
             );
+            Console.WriteLine("финиш поиска: " + DateTime.Now);
             List<Text> elasticData = searchResponse.Documents.ToList<Text>();
             Console.WriteLine(elasticData.Count);
             foreach (var item in elasticData) Console.WriteLine(item.Mess);
