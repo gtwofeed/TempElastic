@@ -15,18 +15,18 @@ namespace TempElastic
         static async Task Main(string[] args)
         {
             Console.WriteLine("START");
-            string index = DateTime.Now.Minute.ToString();
-            var settings = new ConnectionSettings(new Uri("http://localhost:9200")).DefaultIndex("index");
-            var client = new ElasticClient(settings);
-            //var uris = new[]
-            //{
-            //    new Uri("http://localhost:9200")
-            //};
-
-            //var connectionPool = new SniffingConnectionPool(uris);
-            //var settings = new ConnectionSettings(connectionPool).DefaultIndex(index);
-
+            //string index = DateTime.Now.Minute.ToString();
+            //var settings = new ConnectionSettings(new Uri("https://localhost:9200")).BasicAuthentication("elastic", "3_B79q-sN8lbGZ1ReZTY").DefaultIndex("index");
             //var client = new ElasticClient(settings);
+            var uris = new[]
+            {
+                new Uri("https://localhost:9200")
+            };
+
+            var connectionPool = new SniffingConnectionPool(uris);
+            var settings = new ConnectionSettings(connectionPool).CertificateFingerprint("fe330d491c1561c3b465470e1ca5a3fdfc377c724fd136daf1e0dcf125b463bc").BasicAuthentication("elastic", "vk_wYNO6tBp7*2l=XcY4").DefaultIndex("index");
+
+            var client = new ElasticClient(settings);
 
             List<string> brotski = new List<string>()
             {
@@ -75,7 +75,7 @@ namespace TempElastic
                 if (!indexResponse.IsValid) chekIndex++;
             }
             Console.WriteLine(chekIndex);
-
+            Console.Write("ПОИСК: ");
             string query = Console.ReadLine();
             //var searchResponse = client.Search<Text>(s => s
             //.Index(index)
